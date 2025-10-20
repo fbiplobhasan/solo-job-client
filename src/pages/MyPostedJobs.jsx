@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { AuthContext } from "./../providers/AuthProvider";
 import axios from "axios";
 import { format } from "date-fns";
+import toast from "react-hot-toast";
 
 const MyPostedJobs = () => {
   const { user } = useContext(AuthContext);
@@ -17,7 +18,49 @@ const MyPostedJobs = () => {
 
     setJobs(data);
   };
-  console.log(jobs);
+
+  // delete functionality
+  const handleDelete = async (id) => {
+    try {
+      const { data } = await axios.delete(
+        `${import.meta.env.VITE_API_URL}/job/${id}`
+      );
+      toast.success("Data Deleted Successfully.");
+      fetchAllJobs();
+    } catch (err) {
+      console.log(err);
+      toast.error(err.message);
+    }
+  };
+  // custom delete functionality
+  const modernDelete = (id) => {
+    toast((t) => (
+      <div className="flex gap-3 items-center">
+        <div>
+          <p>
+            Are you <b>sure?</b>
+          </p>
+        </div>
+        <div className="gap-2 flex">
+          <button
+            className="bg-red-400 text-white px-3 py-1 rounded-md"
+            onClick={() => {
+              toast.dismiss(t.id);
+              handleDelete(id);
+            }}
+          >
+            Yes
+          </button>
+          <button
+            className="bg-green-400 text-white px-3 py-1 rounded-md"
+            onClick={() => toast.dismiss(t.id)}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    ));
+  };
   return (
     <section className="container px-4 mx-auto pt-12">
       <div className="flex items-center gap-x-3">
@@ -102,11 +145,14 @@ const MyPostedJobs = () => {
                         </div>
                       </td>
                       <td className="px-4 py-4 text-sm text-gray-500  whitespace-nowrap">
-                        {job.description.substring(0,20)}...
+                        {job.description.substring(0, 20)}...
                       </td>
                       <td className="px-4 py-4 text-sm whitespace-nowrap">
                         <div className="flex items-center gap-x-6">
-                          <button className="text-gray-500 transition-colors duration-200   hover:text-red-500 focus:outline-none">
+                          <button
+                            onClick={() => modernDelete(job._id)}
+                            className="text-gray-500 transition-colors duration-200   hover:text-red-500 focus:outline-none"
+                          >
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
                               fill="none"
