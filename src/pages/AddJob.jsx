@@ -74,6 +74,7 @@ const AddJob = () => {
               </label>
               <input
                 id="emailAddress"
+                defaultValue={user?.email}
                 disabled={true}
                 type="email"
                 name="email"
