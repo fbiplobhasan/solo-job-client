@@ -29,7 +29,6 @@ const JobDetails = () => {
     description,
     max_price,
     min_price,
-    bid_count,
     title,
     _id,
     buyer,
@@ -39,25 +38,38 @@ const JobDetails = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const form = e.target;
-    const price = form.price.value;
+    const price = Number(form.price.value);
     const email = user?.email;
     const comment = form.comment.value;
     const jobId = _id;
-    // const deadline = startDate;
 
-    //1. deadline  crossed
+    // 0. Check bid permissions validation
+    if (user?.email === buyer?.email)
+      return toast.error("Action not permitted.");
+
+    // 1. Deadline crossed validation
     if (compareAsc(new Date(), new Date(deadline)) === 1)
-      return toast.error("Deadline crossed.");
+      return toast.error("Deadline Crossed, Bidding Forbidden!");
 
-    // 2. price within maximum price range validation
+    // 2. Price within maximum price range validation
     if (price > max_price)
       return toast.error("Apni price er shima otikkrom korecen!");
 
-    // check action validation
-    if (user?.email === buyer?.email)
-      return toast.error("Action not parmitted.");
+    // 3. offered deadline is within selers deadline validation
+    if (compareAsc(new Date(startDate), new Date(deadline)) === 1)
+      return toast.error("Offered a date within deadline.");
 
-    const bidData = { price, email, comment, deadline, jobId };
+    const bidData = {
+      price,
+      email,
+      comment,
+      deadline: startDate,
+      jobId,
+      title,
+      category,
+      status: "Pending",
+      buyer: buyer?.email,
+    };
 
     try {
       await axios.post(`${import.meta.env.VITE_API_URL}/add-bid`, bidData);
@@ -65,7 +77,7 @@ const JobDetails = () => {
       navigate("/my-bids");
     } catch (err) {
       console.log(err);
-      toast.error(err.message);
+      toast.error(err.response?.data);
     }
   };
 
