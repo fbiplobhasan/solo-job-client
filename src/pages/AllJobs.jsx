@@ -6,15 +6,18 @@ import axios from "axios";
 const AllJobs = () => {
   const [jobs, setJobs] = useState([]);
   const [filter, setFilter] = useState("");
+  const [search, setSearch] = useState("");
   useEffect(() => {
     const fetchAllJobs = async () => {
       const { data } = await axios.get(
-        `${import.meta.env.VITE_API_URL}/all-jobs?filter=${filter}`
+        `${
+          import.meta.env.VITE_API_URL
+        }/all-jobs?filter=${filter}&search=${search}`
       );
       setJobs(data);
     };
     fetchAllJobs();
-  }, [filter]);
+  }, [filter, search]);
 
   console.log(filter);
 
@@ -42,6 +45,7 @@ const AllJobs = () => {
                 className="px-6 py-2 text-gray-700 placeholder-gray-500 bg-white outline-none focus:placeholder-transparent"
                 type="text"
                 name="search"
+                onChange={(e) => setSearch(e.target.value)}
                 placeholder="Enter Job Title"
                 aria-label="Enter Job Title"
               />
